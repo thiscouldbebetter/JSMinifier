@@ -1,0 +1,80 @@
+<html>
+<body>
+
+<div id="divUI">
+
+	<label><b>JavaScript Minifier</b></label>
+	
+	<p>Enter JavaScript code in the textbox and click the button to minify it.</p>
+
+	<label>Keywords to Ignore:</label><br />
+	<textarea id="textareaKeywordsToIgnore" cols="80" rows="8">
+alert
+function
+var
+return
+	</textarea><br />
+
+	<label>Code to Minify:</label><br />
+	<textarea id="textareaCodeToMinify" cols="80" rows="16">
+// This is a test!
+
+function add(addend0, addend1)
+{
+	var result = addend0 + addend1;
+	return result;
+}
+
+var addend0 = 1; // test comment
+var addend1 = 2;
+
+var sum = add(addend0, addend1);
+
+alert("The sum of " + addend0 + " and " + addend1 + " is " + sum);
+
+	</textarea><br />
+
+	<button onclick="buttonMinify_Clicked();">Minify</button><br />
+
+	<label>Code after Minification:</label><br />
+	<textarea id="textareaCodeMinified" cols="80" rows="8"></textarea><br />
+</div>
+
+<script type="text/javascript">
+
+// ui event handlers
+
+function buttonMinify_Clicked()
+{
+	var textareaKeywordsToIgnore = 
+		document.getElementById("textareaKeywordsToIgnore");
+
+	var keywordsToIgnoreAsString = 
+		textareaKeywordsToIgnore.value;
+	var keywordsToIgnore = 
+		keywordsToIgnoreAsString.split("\n"); 
+
+	var textareaCodeToMinify = 
+		document.getElementById("textareaCodeToMinify");
+
+	var codeToMinify = textareaCodeToMinify.value;
+
+	var minifier = new Minifier(keywordsToIgnore);
+
+	var codeMinified = minifier.minifyCode(codeToMinify);
+
+	var textareaCodeMinified = 
+		document.getElementById("textareaCodeMinified");
+
+	textareaCodeMinified.value = codeMinified;
+}
+
+</script>
+
+<script type="text/javascript" src="StringExtensions.js"></script>
+
+<script type="text/javascript" src="Minifier.js"></script>
+<script type="text/javascript" src="Tokenizer.js"></script>
+
+</body>
+</html>
