@@ -6,7 +6,7 @@ function Minifier(keywords)
 	this.keywords = keywords;
 
 	this.identifierToMinifiedLookup = [];
-	
+
 	this.identifierChars =
 		"abcdefghijklmnopqrstuvwxyz"
 		+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -16,7 +16,7 @@ function Minifier(keywords)
 	Minifier.prototype.identifierMinify = function(identifierToMinify)
 	{
 		var identifierLookup = this.identifierToMinifiedLookup;
-		
+
 		var identifierMinified = identifierLookup[identifierToMinify];
 
 		if (identifierMinified == null)
@@ -69,7 +69,6 @@ function Minifier(keywords)
 			(
 				codeLineMinusComments
 			);
-
 		}
 
 		var codeMinusComments = codeAsLinesMinusComments.join("\n");
@@ -81,11 +80,16 @@ function Minifier(keywords)
 
 		this.identifierToMinifiedLookup = [];
 
+		var arrayMethodNames = [ "indexOf", "length", "push", "slice", "splice" ];
+
 		for (var k = 0; k < this.keywords.length; k++)
 		{
 			var keyword = this.keywords[k];
-			var keywordTrimmed = keyword.trim();
-			this.identifierToMinifiedLookup[keywordTrimmed] = keyword;	
+			if (arrayMethodNames.indexOf(keyword) == -1)
+			{
+				var keywordTrimmed = keyword.trim();
+				this.identifierToMinifiedLookup[keywordTrimmed] = keyword;
+			}
 		}
 
 		var codeMinifiedAsTokens = [];
@@ -95,8 +99,12 @@ function Minifier(keywords)
 			var tokenToMinify = codeAsTokens[t];
 
 			var tokenMinified;
-		
-			if (tokenToMinify.isIdentifier() == false)
+
+			if (arrayMethodNames.indexOf(tokenToMinify) >= 0)
+			{
+				tokenMinified = tokenToMinify;
+			}
+			else if (tokenToMinify.isIdentifier() == false)
 			{
 				tokenMinified = tokenToMinify;
 			}

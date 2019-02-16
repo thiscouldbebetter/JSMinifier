@@ -17,6 +17,18 @@ function StringExtensions()
 		return returnValue;
 	}
 
+	String.prototype.isIdentifier = function()
+	{
+		var returnValue =
+		(
+			this.length >= 1
+			&& isNaN( parseFloat(this) )
+			&& this[0].isLetter()
+		);
+
+		return returnValue;
+	}
+
 	String.prototype.isLetter = function()
 	{
 		var charCode = this.charCodeAt(0);
@@ -31,18 +43,6 @@ function StringExtensions()
 				charCode >= "a".charCodeAt(0) 
 				&& charCode <= "z".charCodeAt(0) 
 			)
-		);
-
-		return returnValue;
-	}
-
-	String.prototype.isIdentifier = function()
-	{
-		var returnValue = 
-		( 
-			this.length >= 1
-			&& isNaN( parseFloat(this) ) 
-			&& this[0].isLetter()
 		);
 
 		return returnValue;
