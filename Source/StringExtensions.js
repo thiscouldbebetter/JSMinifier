@@ -5,6 +5,18 @@ function StringExtensions()
 }
 
 {
+	String.prototype.isDigit = function()
+	{
+		var charCode = this.charCodeAt(0);
+		var returnValue = 
+		(
+			charCode >= "0".charCodeAt(0) 
+			&& charCode <= "9".charCodeAt(0) 
+		);
+
+		return returnValue;
+	}
+
 	String.prototype.isLetter = function()
 	{
 		var charCode = this.charCodeAt(0);
@@ -19,7 +31,6 @@ function StringExtensions()
 				charCode >= "a".charCodeAt(0) 
 				&& charCode <= "z".charCodeAt(0) 
 			)
-
 		);
 
 		return returnValue;
@@ -36,7 +47,7 @@ function StringExtensions()
 
 		return returnValue;
 	}
-
+		
 	String.prototype.isNumber = function()
 	{
 		var returnValue = 

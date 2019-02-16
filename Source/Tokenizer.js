@@ -10,13 +10,14 @@ function Tokenizer()
 
 		var tokenInProgress = "";
 
-		var isWithinQuotes;
+		var isWithinQuotes = false;
+		var isWithinNumber = false;
 
 		for (var i = 0; i < stringToTokenize.length; i++)
 		{
 			var char = stringToTokenize[i];
 			
-			if (isWithinQuotes == true)
+			if (isWithinQuotes)
 			{
 				tokenInProgress += char;
 
@@ -33,6 +34,20 @@ function Tokenizer()
 					tokenInProgress += charNext;
 				}
 			}
+			else if (isWithinNumber)
+			{
+				if (char.isNumber())
+				{
+					tokenInProgress += char;
+				}
+				else
+				{
+					isWithinNumber = false;
+					tokensSoFar.push(tokenInProgress);
+					tokensSoFar.push(char);
+					tokenInProgress = "";
+				}				
+			}
 			else if (char.isWhitespace())
 			{
 				if (tokenInProgress.length > 1)
@@ -41,10 +56,19 @@ function Tokenizer()
 					tokenInProgress = "";
 				}
 			}
-			else if (char.isLetter() || char.isNumber())
+			else if (char.isLetter())
 			{
 				tokenInProgress += char;	
 			}
+			else if (char.isDigit())
+			{				
+				if (tokenInProgress == "")
+				{
+					isWithinNumber = true;
+				}
+				
+				tokenInProgress += char;
+			}			
 			else if (char == "\"")
 			{
 				isWithinQuotes = true;

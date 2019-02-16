@@ -5,15 +5,44 @@ function Minifier(keywords)
 {
 	this.keywords = keywords;
 
-	var identifiersMinifiedAsString = 
-		"a;b;c;d;e;f;g;h;i;j;k;l;m;n;o;p;q;r;s;t;u;v;w;x;y;z;"
-		+ "A;B;C;D;E;F;G;H;I;J;K;L;M;N;O;P;Q;R;S;T;U;V;W;X;Y;Z";
-
-	this.identifiersMinified = 
-		identifiersMinifiedAsString.split(";");
+	this.identifierToMinifiedLookup = [];
+	
+	this.identifierChars =
+		"abcdefghijklmnopqrstuvwxyz"
+		+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 }
 
 {
+	Minifier.prototype.identifierMinify = function(identifierToMinify)
+	{
+		var identifierLookup = this.identifierToMinifiedLookup;
+		
+		var identifierMinified = identifierLookup[identifierToMinify];
+
+		if (identifierMinified == null)
+		{
+			var numberOfCharsAvailable = this.identifierChars.length;
+			var identifierMinifiedAsNumber = identifierLookup.length + 1;
+			var identifierMinified = "";
+			
+			while (identifierMinifiedAsNumber > 0)
+			{
+				var charNextAsNumber =
+					identifierMinifiedAsNumber % numberOfCharsAvailable;
+				identifierMinifiedAsNumber -= charNextAsNumber;
+				identifierMinifiedAsNumber /= numberOfCharsAvailable;
+									
+				var charNext = this.identifierChars[charNextAsNumber];
+				identifierMinified += charNext;
+			}
+			
+			identifierLookup.push(identifierMinified);
+			identifierLookup[identifierToMinify] = identifierMinified;
+		}
+		
+		return identifierMinified;
+	}
+
 	Minifier.prototype.minifyCode = function(codeToMinify)
 	{
 		var codeAsLines = codeToMinify.split("\n");
@@ -50,12 +79,13 @@ function Minifier(keywords)
 		var codeAsTokens = 
 			tokenizer.tokenizeString(codeMinusComments);
 
-		var identifierLookup = [];
+		this.identifierToMinifiedLookup = [];
 
 		for (var k = 0; k < this.keywords.length; k++)
 		{
 			var keyword = this.keywords[k];
-			identifierLookup[keyword] = keyword + " ";	
+			var keywordTrimmed = keyword.trim();
+			this.identifierToMinifiedLookup[keywordTrimmed] = keyword;	
 		}
 
 		var codeMinifiedAsTokens = [];
@@ -72,19 +102,7 @@ function Minifier(keywords)
 			}
 			else
 			{
-				tokenMinified = identifierLookup[tokenToMinify];
-
-				if (tokenMinified == null)
-				{
-					var numberOfIdentifiersSoFar = 
-						identifierLookup.length;
-
-					tokenMinified = 
-						this.identifiersMinified[numberOfIdentifiersSoFar];
-	
-					identifierLookup[tokenToMinify] = tokenMinified;
-	 				identifierLookup.push(tokenToMinify);
-				}
+				tokenMinified = this.identifierMinify(tokenToMinify);
 			}
 
 			codeMinifiedAsTokens.push(tokenMinified);
