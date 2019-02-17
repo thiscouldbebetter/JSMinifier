@@ -1,8 +1,10 @@
 
 // classes
 
-function Minifier(keywords)
+function Minifier(disableMinification, preserveWhitespace, keywords)
 {
+	this.disableMinification = disableMinification; // For debugging.
+	this.preserveWhitespace = preserveWhitespace;
 	this.keywords = keywords;
 
 	this.identifierToMinifiedLookup = [];
@@ -13,6 +15,42 @@ function Minifier(keywords)
 }
 
 {
+	Minifier.keywordsDefault = function()
+	{
+		var keywords =
+		[
+			"alert",
+			"appendChild",
+			"constructor",
+			"document",
+			"else ",
+			"delete ",
+			"false",
+			"for",
+			"function ",
+			"indexOf ",
+			"if",
+			"join",
+			"length",
+			"getElementById",
+			"name",
+			"new ",
+			"null",
+			"prototype",
+			"push",
+			"return ",
+			"slice",
+			"splice ",
+			"split",
+			"this",
+			"true",
+			"var ",
+			"while",
+		];
+
+		return keywords;
+	}
+
 	Minifier.prototype.identifierMinify = function(identifierToMinify)
 	{
 		var identifierLookup = this.identifierToMinifiedLookup;
@@ -21,31 +59,54 @@ function Minifier(keywords)
 
 		if (identifierMinified == null)
 		{
-			var numberOfCharsAvailable = this.identifierChars.length;
-			var identifierMinifiedAsNumber = identifierLookup.length + 1;
-			var identifierMinified = "";
-			
-			while (identifierMinifiedAsNumber > 0)
+			if (this.disableMinification)
 			{
-				var charNextAsNumber =
-					identifierMinifiedAsNumber % numberOfCharsAvailable;
-				identifierMinifiedAsNumber -= charNextAsNumber;
-				identifierMinifiedAsNumber /= numberOfCharsAvailable;
-									
-				var charNext = this.identifierChars[charNextAsNumber];
-				identifierMinified += charNext;
+				identifierMinified = identifierToMinify;
 			}
-			
-			identifierLookup.push(identifierMinified);
-			identifierLookup[identifierToMinify] = identifierMinified;
+			else
+			{
+				var numberOfCharsAvailable = this.identifierChars.length;
+				var identifierMinifiedAsNumber = identifierLookup.length + 1;
+				var identifierMinified = "";
+
+				while (identifierMinifiedAsNumber > 0)
+				{
+					var charNextAsNumber =
+						identifierMinifiedAsNumber % numberOfCharsAvailable;
+					identifierMinifiedAsNumber -= charNextAsNumber;
+					identifierMinifiedAsNumber /= numberOfCharsAvailable;
+
+					var charNext = this.identifierChars[charNextAsNumber];
+					identifierMinified += charNext;
+				}
+
+				identifierLookup.push(identifierMinified);
+				identifierLookup[identifierToMinify] = identifierMinified;
+			}
 		}
-		
+
 		return identifierMinified;
 	}
 
 	Minifier.prototype.minifyCode = function(codeToMinify)
 	{
-		var codeAsLines = codeToMinify.split("\n");
+		this.identifierToMinifiedLookup = [];
+
+		// Can't add these as properties of the lookup array.
+		var arrayMethodNames = [ "indexOf", "length", "push", "slice", "splice" ];
+
+		for (var k = 0; k < this.keywords.length; k++)
+		{
+			var keyword = this.keywords[k];
+			if (arrayMethodNames.indexOf(keyword) == -1)
+			{
+				var keywordTrimmed = keyword.trim();
+				this.identifierToMinifiedLookup[keywordTrimmed] = keyword;
+			}
+		}
+
+		var newline = "\n";
+		var codeAsLines = codeToMinify.split(newline);
 		var codeAsLinesMinusComments = [];
 
 		for (var i = 0; i < codeAsLines.length; i++)
@@ -71,26 +132,12 @@ function Minifier(keywords)
 			);
 		}
 
-		var codeMinusComments = codeAsLinesMinusComments.join("\n");
+		var codeMinusComments = codeAsLinesMinusComments.join(newline);
 
-		var tokenizer = new Tokenizer();
+		var tokenizer = new Tokenizer(this.preserveWhitespace);
 
 		var codeAsTokens = 
 			tokenizer.tokenizeString(codeMinusComments);
-
-		this.identifierToMinifiedLookup = [];
-
-		var arrayMethodNames = [ "indexOf", "length", "push", "slice", "splice" ];
-
-		for (var k = 0; k < this.keywords.length; k++)
-		{
-			var keyword = this.keywords[k];
-			if (arrayMethodNames.indexOf(keyword) == -1)
-			{
-				var keywordTrimmed = keyword.trim();
-				this.identifierToMinifiedLookup[keywordTrimmed] = keyword;
-			}
-		}
 
 		var codeMinifiedAsTokens = [];
 

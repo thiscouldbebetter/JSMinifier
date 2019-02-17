@@ -1,7 +1,7 @@
 
-function Tokenizer()
+function Tokenizer(preserveWhitespace)
 {
-	// do nothing
+	this.preserveWhitespace = preserveWhitespace;
 }
 {
 	Tokenizer.prototype.tokenizeString = function(stringToTokenize)
@@ -54,6 +54,11 @@ function Tokenizer()
 				{
 					tokensSoFar.push(tokenInProgress);
 					tokenInProgress = "";
+				}
+
+				if (this.preserveWhitespace)
+				{
+					tokensSoFar.push(char);
 				}
 			}
 			else if (char.isLetter())

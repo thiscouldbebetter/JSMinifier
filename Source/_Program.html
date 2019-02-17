@@ -1,5 +1,5 @@
 <html>
-<body>
+<body onload="body_Loaded();">
 
 <div id="divUI">
 
@@ -9,34 +9,13 @@
 
 	<label>Keywords to Ignore (with trailing spaces as needed):</label><br />
 	<textarea id="textareaKeywordsToIgnore" cols="80" rows="8">
-alert
-appendChild
-constructor
-document
-else 
-delete 
-false
-for
-function 
-indexOf 
-if
-join
-length
-getElementById
-name
-new 
-null
-prototype
-push
-return 
-slice
-splice 
-split
-this
-true
-var 
-while
 	</textarea><br />
+
+	<label>Disable Minification:</label>
+	<input id="checkboxDisableMinification" type="checkbox"></input>
+	<label>Preserve Whitespace:</label>
+	<input id="checkboxPreserveWhitespace" type="checkbox"></input>
+	<br />
 
 	<label>Code to Minify:</label><br />
 	<textarea id="textareaCodeToMinify" cols="80" rows="16">
@@ -48,12 +27,25 @@ function add(addend0, addend1)
 	return result;
 }
 
+function multiply(factors)
+{
+	var productSoFar = 1;
+	for (var i = 0; i &lt; factors.length; i++)
+	{
+		var factor = factors[i];
+		productSoFar *= factor;
+	}
+	return productSoFar;
+}
+
 var addend0 = 1; // test comment
 var addend1 = 2;
-
 var sum = add(addend0, addend1);
-
 alert("The sum of " + addend0 + " and " + addend1 + " is " + sum);
+
+var factors = [1, 2, 3, 4];
+var product = multiply(factors);
+alert("The product of " + factors.join(", ") + " is " + sum);
 
 	</textarea><br />
 
@@ -67,6 +59,14 @@ alert("The sum of " + addend0 + " and " + addend1 + " is " + sum);
 
 // ui event handlers
 
+function body_Loaded()
+{
+	var keywords = Minifier.keywordsDefault();
+	var textareaKeywordsToIgnore =
+		document.getElementById("textareaKeywordsToIgnore");
+	textareaKeywordsToIgnore.value = keywords.join("\n");
+}
+
 function buttonMinify_Clicked()
 {
 	var textareaKeywordsToIgnore = 
@@ -77,12 +77,25 @@ function buttonMinify_Clicked()
 	var keywordsToIgnore = 
 		keywordsToIgnoreAsString.split("\n"); 
 
+	var checkboxDisableMinification =
+		document.getElementById("checkboxDisableMinification");
+	var disableMinification = checkboxDisableMinification.checked;
+
+	var checkboxPreserveWhitespace =
+		document.getElementById("checkboxPreserveWhitespace");
+	var preserveWhitespace = checkboxPreserveWhitespace.checked;
+
 	var textareaCodeToMinify = 
 		document.getElementById("textareaCodeToMinify");
 
 	var codeToMinify = textareaCodeToMinify.value;
 
-	var minifier = new Minifier(keywordsToIgnore);
+	var minifier = new Minifier
+	(
+		disableMinification,
+		preserveWhitespace,
+		keywordsToIgnore
+	);
 
 	var codeMinified = minifier.minifyCode(codeToMinify);
 
