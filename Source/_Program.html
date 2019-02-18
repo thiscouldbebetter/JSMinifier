@@ -7,7 +7,7 @@
 	
 	<p>Enter JavaScript code in the textbox and click the button to minify it.</p>
 
-	<label>Keywords to Ignore (with trailing spaces as needed):</label><br />
+	<label>Keywords to Ignore (with spaces as needed):</label><br />
 	<textarea id="textareaKeywordsToIgnore" cols="80" rows="8">
 	</textarea><br />
 
@@ -17,7 +17,9 @@
 	<input id="checkboxPreserveWhitespace" type="checkbox"></input>
 	<br />
 
-	<label>Code to Minify:</label><br />
+	<label>Code to Minify:</label>
+	<input id="inputFileToLoad" type="file" onchange="inputFileToLoad_Changed(this);"></input>
+	<br />
 	<textarea id="textareaCodeToMinify" cols="80" rows="16">
 // This is a test!
 
@@ -103,6 +105,22 @@ function buttonMinify_Clicked()
 		document.getElementById("textareaCodeMinified");
 
 	textareaCodeMinified.value = codeMinified;
+}
+
+function inputFileToLoad_Changed(inputFileToLoad)
+{
+	var file = inputFileToLoad.files[0];
+	if (file != null)
+	{
+		var fileReader = new FileReader();
+		fileReader.onload = function(event)
+		{
+			var fileAsString = event.target.result;
+			var textareaCodeToMinify = document.getElementById("textareaCodeToMinify");
+			textareaCodeToMinify.value = fileAsString;
+		}
+		fileReader.readAsText(file);
+	}
 }
 
 </script>
