@@ -16,7 +16,7 @@ function Tokenizer(preserveWhitespace)
 		for (var i = 0; i < stringToTokenize.length; i++)
 		{
 			var char = stringToTokenize[i];
-			
+
 			if (isWithinQuotes)
 			{
 				tokenInProgress += char;
@@ -46,7 +46,7 @@ function Tokenizer(preserveWhitespace)
 					tokensSoFar.push(tokenInProgress);
 					tokensSoFar.push(char);
 					tokenInProgress = "";
-				}				
+				}
 			}
 			else if (char.isWhitespace())
 			{
@@ -63,17 +63,17 @@ function Tokenizer(preserveWhitespace)
 			}
 			else if (char.isLetter())
 			{
-				tokenInProgress += char;	
+				tokenInProgress += char;
 			}
 			else if (char.isDigit())
-			{				
+			{
 				if (tokenInProgress == "")
 				{
 					isWithinNumber = true;
 				}
-				
+
 				tokenInProgress += char;
-			}			
+			}
 			else if (char == "\"")
 			{
 				isWithinQuotes = true;
@@ -85,7 +85,7 @@ function Tokenizer(preserveWhitespace)
 				tokensSoFar.push(char);
 				tokenInProgress = "";
 			}
-		}		
+		}
 
 		return tokensSoFar;
 	}

@@ -47,7 +47,7 @@ function StringExtensions()
 
 		return returnValue;
 	}
-		
+
 	String.prototype.isNumber = function()
 	{
 		var returnValue = 
