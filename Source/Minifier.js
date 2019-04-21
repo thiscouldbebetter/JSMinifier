@@ -17,6 +17,7 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 	{
 		var keywords =
 		[
+			"abs",
 			"alert",
 			"apply",
 			"arc",
