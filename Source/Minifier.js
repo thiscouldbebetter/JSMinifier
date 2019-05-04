@@ -19,6 +19,7 @@ function Minifier(disableMinification, preserveWhitespace, keywordsToConserve, c
 		var classNamesWithMethodsToConserve =
 		[
 			"Array",
+			"CanvasGradient",
 			"CanvasRenderingContext2D",
 			"Date",
 			"Math",
@@ -92,15 +93,12 @@ function Minifier(disableMinification, preserveWhitespace, keywordsToConserve, c
 			"onmousedown",
 			"onmousemove",
 			"onmouseup",
-			"onreadystatechange",
-			"open",
 			"parse",
 			"position",
 			"preventDefault",
 			"proto",
 			"prototype",
 			"removeChild",
-			"responseText",
 			"return ",
 			"script ",
 			"setInterval",
