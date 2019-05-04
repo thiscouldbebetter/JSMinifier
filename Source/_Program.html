@@ -7,8 +7,12 @@
 
 	<p>Enter JavaScript code in the textbox and click the button to minify it.</p>
 
-	<label>Keywords to Ignore (with spaces as needed):</label><br />
-	<textarea id="textareaKeywordsToIgnore" cols="80" rows="8">
+	<label>Keywords to Conserve (with spaces as needed):</label><br />
+	<textarea id="textareaKeywordsToConserve" cols="80" rows="8">
+	</textarea><br />
+
+	<label>Classes with Methods to Conserve:</label><br />
+	<textarea id="textareaClassesWithMethodsToConserve" cols="80" rows="8">
 	</textarea><br />
 
 	<label>Disable Minification:</label>
@@ -40,6 +44,11 @@ function multiply(factors)
 	return productSoFar;
 }
 
+function cube(base)
+{
+	return Math.pow(base, 3);
+}
+
 var addend0 = 1; // test comment
 var addend1 = 2;
 var sum = add(addend0, addend1);
@@ -48,6 +57,10 @@ alert("The sum of " + addend0 + " and " + addend1 + " is " + sum);
 var factors = [1, 2, 3, 4];
 var product = multiply(factors);
 alert("The product of " + factors.join(", ") + " is " + sum);
+
+var base = 3;
+var cubeOfBase = cube(base);
+alert("The cube of " + base + " is " + cubeOfBase);
 
 	</textarea><br />
 
@@ -64,20 +77,31 @@ alert("The product of " + factors.join(", ") + " is " + sum);
 function body_Loaded()
 {
 	var keywords = Minifier.keywordsDefault();
-	var textareaKeywordsToIgnore =
-		document.getElementById("textareaKeywordsToIgnore");
-	textareaKeywordsToIgnore.value = keywords.join("\n");
+	var textareaKeywordsToConserve =
+		document.getElementById("textareaKeywordsToConserve");
+	textareaKeywordsToConserve.value = keywords.join("\n");
+
+	var classNamesToConserve = Minifier.classNamesWithMethodsToConserveDefault();
+	var textareaClassesWithMethodsToConserve =
+		document.getElementById("textareaClassesWithMethodsToConserve");
+	textareaClassesWithMethodsToConserve.value = classNamesToConserve.join("\n");
 }
 
 function buttonMinify_Clicked()
 {
-	var textareaKeywordsToIgnore = 
-		document.getElementById("textareaKeywordsToIgnore");
+	var textareaKeywordsToConserve =
+		document.getElementById("textareaKeywordsToConserve");
+	var keywordsToConserveAsString =
+		textareaKeywordsToConserve.value;
+	var keywordsToConserve =
+		keywordsToConserveAsString.split("\n");
 
-	var keywordsToIgnoreAsString = 
-		textareaKeywordsToIgnore.value;
-	var keywordsToIgnore = 
-		keywordsToIgnoreAsString.split("\n"); 
+	var textareaClassesWithMethodsToConserve =
+		document.getElementById("textareaClassesWithMethodsToConserve");
+	var classNamesWithMethodsToConserveAsString =
+		textareaClassesWithMethodsToConserve.value;
+	var classNamesWithMethodsToConserve =
+		classNamesWithMethodsToConserveAsString.split("\n");
 
 	var checkboxDisableMinification =
 		document.getElementById("checkboxDisableMinification");
@@ -87,7 +111,7 @@ function buttonMinify_Clicked()
 		document.getElementById("checkboxPreserveWhitespace");
 	var preserveWhitespace = checkboxPreserveWhitespace.checked;
 
-	var textareaCodeToMinify = 
+	var textareaCodeToMinify =
 		document.getElementById("textareaCodeToMinify");
 
 	var codeToMinify = textareaCodeToMinify.value;
@@ -96,12 +120,13 @@ function buttonMinify_Clicked()
 	(
 		disableMinification,
 		preserveWhitespace,
-		keywordsToIgnore
+		keywordsToConserve,
+		classNamesWithMethodsToConserve
 	);
 
 	var codeMinified = minifier.minifyCode(codeToMinify);
 
-	var textareaCodeMinified = 
+	var textareaCodeMinified =
 		document.getElementById("textareaCodeMinified");
 
 	textareaCodeMinified.value = codeMinified;

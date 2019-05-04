@@ -1,11 +1,12 @@
 
 // classes
 
-function Minifier(disableMinification, preserveWhitespace, keywords)
+function Minifier(disableMinification, preserveWhitespace, keywordsToConserve, classNamesWithMethodsToConserve)
 {
 	this.disableMinification = disableMinification; // For debugging.
 	this.preserveWhitespace = preserveWhitespace;
-	this.keywords = keywords;
+	this.keywordsToConserve = keywordsToConserve;
+	this.classNamesWithMethodsToConserve = classNamesWithMethodsToConserve;
 
 	this.identifierChars =
 		"abcdefghijklmnopqrstuvwxyz"
@@ -13,16 +14,39 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 }
 
 {
+	Minifier.classNamesWithMethodsToConserveDefault = function()
+	{
+		var classNamesWithMethodsToConserve =
+		[
+			"Math",
+		];
+
+		/*
+			"Math",
+			"abs",
+			"asin",
+			"atan2",
+			"ceil",
+			"cos",
+			"floor",
+			"PI",
+			"pow",
+			"random",
+			"round",
+			"sin",
+			"sqrt",
+		*/
+
+		return classNamesWithMethodsToConserve;
+	}
+
 	Minifier.keywordsDefault = function()
 	{
 		var keywords =
 		[
-			"abs",
 			"alert",
 			"apply",
 			"arc",
-			"asin",
-			"atan2",
 			"appendChild",
 			"Array",
 			"beginPath",
@@ -31,7 +55,6 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"break",
 			"call",
 			"catch ",
-			"ceil",
 			"charCodeAt",
 			"clear",
 			"clearInterval",
@@ -41,7 +64,6 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"closePath",
 			"concat",
 			"constructor",
-			"cos",
 			"create",
 			"createElement",
 			"createRadialGradient",
@@ -61,7 +83,6 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"fillText",
 			"filter",
 			"Float32Array",
-			"floor",
 			"font",
 			"for",
 			"forEach",
@@ -99,7 +120,6 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"localStorage",
 			"location",
 			"map",
-			"Math",
 			"marginLeft",
 			"marginTop",
 			"measureText",
@@ -122,20 +142,16 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"onreadystatechange",
 			"open",
 			"parse",
-			"PI",
 			"position",
-			"pow",
 			"preventDefault",
 			"proto",
 			"prototype",
 			"push",
-			"random",
 			"removeChild",
 			"responseText",
 			"restore",
 			"return ",
 			"rotate",
-			"round",
 			"save",
 			"scale",
 			"script ",
@@ -143,13 +159,11 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"send",
 			"setInterval",
 			"setItem",
-			"sin",
 			"slice",
 			"search",
 			"sort",
 			"splice ",
 			"split",
-			"sqrt",
 			"src",
 			"startsWith",
 			"String",
@@ -202,8 +216,8 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 				var numberOfCharsAvailable = this.identifierChars.length;
 				var identifierMinified;
 
-				var identifierMinifiedIsKeyword = true;
-				while (identifierMinifiedIsKeyword)
+				var identifierMinifiedIsStringToConserve = true;
+				while (identifierMinifiedIsStringToConserve)
 				{
 					identifierMinified = "";
 					var identifierMinifiedAsNumber =
@@ -220,8 +234,8 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 						identifierMinified += charNext;
 					}
 
-					identifierMinifiedIsKeyword =
-						(this.keywordsTrimmed.indexOf(identifierMinified) >= 0);
+					identifierMinifiedIsStringToConserve =
+						(this.stringsToConserve.indexOf(identifierMinified) >= 0);
 
 					this.identifierToMinifiedLookupCount++;
 				}
@@ -237,14 +251,30 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 	{
 		this.identifierToMinifiedLookupCount = 0;
 		this.identifierToMinifiedLookup = {};
-		this.keywordsTrimmed = [];
+		this.stringsToConserve = [];
 
-		for (var k = 0; k < this.keywords.length; k++)
+		for (var k = 0; k < this.keywordsToConserve.length; k++)
 		{
-			var keyword = this.keywords[k];
+			var keyword = this.keywordsToConserve[k];
 			var keywordTrimmed = keyword.trim();
-			this.keywordsTrimmed.push(keywordTrimmed);
+			this.stringsToConserve.push(keywordTrimmed);
 			this.identifierToMinifiedLookup[keywordTrimmed] = keyword;
+		}
+
+		for (var c = 0; c < this.classNamesWithMethodsToConserve.length; c++)
+		{
+			var className = this.classNamesWithMethodsToConserve[c];
+			this.stringsToConserve.push(className);
+
+			var classInstance = window[className];
+			var propertyNames = Object.getOwnPropertyNames(classInstance);
+
+			for (var p = 0; p < propertyNames.length; p++)
+			{
+				var propertyName = propertyNames[p];
+				this.stringsToConserve.push(propertyName);
+				this.identifierToMinifiedLookup[propertyName] = propertyName;
+			}
 		}
 
 		var newline = "\n";
@@ -264,7 +294,7 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			}
 			else
 			{
-				codeLineMinusComments = 
+				codeLineMinusComments =
 					codeLine.substr(0, indexOfDoubleSlash);
 			}
 
@@ -278,7 +308,7 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 
 		var tokenizer = new Tokenizer(this.preserveWhitespace);
 
-		var codeAsTokens = 
+		var codeAsTokens =
 			tokenizer.tokenizeString(codeMinusComments);
 
 		var codeMinifiedAsTokens = [];
