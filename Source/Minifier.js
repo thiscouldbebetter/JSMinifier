@@ -124,6 +124,7 @@ function Minifier(disableMinification, preserveWhitespace, keywords)
 			"parse",
 			"PI",
 			"position",
+			"pow",
 			"preventDefault",
 			"proto",
 			"prototype",
